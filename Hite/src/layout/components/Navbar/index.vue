@@ -1,7 +1,7 @@
 <template>
   <div class="ht-navbar">
     <div class="ht-navbar-btn">
-      <component :is="status ? 'MenuFoldOutlined' : 'MenuUnFoldOutlined'"></component>
+        <component  @click="changeSidebarStatus" :is="status ? 'MenuFoldOutlined' : 'MenuUnfoldOutlined'"></component>
     </div>
     <div class="ht-navbar-info">
       <a-dropdown placement="bottomCenter">
@@ -39,15 +39,11 @@ import {
   SettingOutlined,
   LogoutOutlined
 } from "@ant-design/icons-vue"
+import { computed } from "vue"
+import { useStore } from "vuex"
 
 export default {
   name: "index",
-  props: {
-    status: {
-      type: Boolean,
-      default: true
-    }
-  },
   components: {
     MenuFoldOutlined,
     MenuUnfoldOutlined,
@@ -55,6 +51,19 @@ export default {
     UserOutlined,
     SettingOutlined,
     LogoutOutlined
+  },
+  setup() {
+    const store = useStore();
+    const status = computed(() => store.state.app.sideBarOpenStatus)
+
+    const changeSidebarStatus = () => {
+      store.commit("app/TOGGLE_SIDEBAR")
+    }
+
+    return {
+      status,
+      changeSidebarStatus
+    }
   }
 }
 </script>
@@ -67,6 +76,7 @@ export default {
   color: rgba(0,0,0,.85);
   line-height: 50px;
   position: relative;
+  z-index: 0;
   display: flex;
   box-shadow: 0 1px 4px rgb(0 21 41 / 8%);
 }

@@ -33,9 +33,12 @@ export default {
   height: 100vh;
   background: #f0f2f5;
   display: flex;
+  overflow-x: hidden;
 }
 .ht-layout-right {
   flex: 1;
+  min-width: 0;
+  flex-shrink: 0;
   height: 100%;
 }
 </style>

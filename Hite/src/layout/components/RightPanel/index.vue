@@ -1,7 +1,7 @@
 <template>
   <div class="ht-right-panel">
     <div class="ht-right-panel-tags-view">
-
+      <TagsView></TagsView>
     </div>
     <div class="ht-right-panel-content">
       <router-view></router-view>
@@ -10,8 +10,13 @@
 </template>
 
 <script>
+import TagsView from "../TagsView/index.vue";
+
 export default {
-  name: "index"
+  name: "index",
+  components: {
+    TagsView
+  }
 }
 </script>
 

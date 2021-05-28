@@ -1,4 +1,5 @@
 <template>
+  <SideBarMask></SideBarMask>
   <div class="ht-sidebar" :class=" status ? 'open' : 'close'">
     <Header :status.sync="status"></Header>
     <a-menu theme="dark" mode="inline" :default-selected-keys="['1']">
@@ -24,21 +25,24 @@
 
 <script>
 
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import SubMenu from "./SubMenu.vue";
 import Header from "./Header.vue";
 import { useRouter } from "vue-router";
-
+import { useStore } from "vuex"
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined
 } from "@ant-design/icons-vue"
+import SideBarMask from "./SideBarMask.vue";
 
 export default {
   name: "index",
-  components: {Header,SubMenu,MenuFoldOutlined,MenuUnfoldOutlined},
+  components: {SideBarMask, Header,SubMenu,MenuFoldOutlined,MenuUnfoldOutlined},
   setup() {
-    const status = ref(true);
+    const store = useStore();
+    const status = computed(() => store.state.app.sideBarOpenStatus);
+
     const router = useRouter();
 
     const menuList = ref([
@@ -59,7 +63,7 @@ export default {
     }
 
     const changeSidebarStatus = () => {
-      status.value = !status.value
+      store.commit("app/TOGGLE_SIDEBAR")
     }
 
     return {
@@ -82,7 +86,7 @@ export default {
   overflow-x: hidden;
 }
 .open {
-  width: $sideBarOpenWidth;
+  width: $sideBarOpenWidth !important;
 }
 .close {
   width: $sideBarCloseWidth;
@@ -94,10 +98,17 @@ export default {
   width: 100%;
   cursor: pointer;
 }
-@media screen and (max-width:400px) {
+@media screen and (max-width:766px) {
   .ht-sidebar {
     position: fixed;
     z-index: 5;
+  }
+  .ht-menu-mask {
+    position: fixed;
+    z-index: 0;
+    width: 100vw;
+    height: 100vh;
+    background: red;
   }
 }
 </style>

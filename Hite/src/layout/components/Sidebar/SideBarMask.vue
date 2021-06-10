@@ -5,6 +5,7 @@
 </template>
 
 <script>
+// todo: 还没做好隐藏sidebar
 export default {
   name: "SideBarMask"
 }

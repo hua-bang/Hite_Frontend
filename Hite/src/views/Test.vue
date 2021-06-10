@@ -1,80 +1,92 @@
 <template>
-  <a-tabs v-model:activeKey="activeKey" type="editable-card" @edit="onEdit">
-    <a-tab-pane v-for="pane in panes" :key="pane.key" :tab="pane.title" :closable="pane.closable">
-      {{ pane.content }}
-    </a-tab-pane>
-  </a-tabs>
+  <div style="width: 256px">
+    123
+  </div>
 </template>
 <script>
 import { defineComponent, ref } from 'vue';
+import {
+  MenuFoldOutlined,
+  MenuUnfoldOutlined,
+  PieChartOutlined,
+  MailOutlined,
+} from '@ant-design/icons-vue'; // you can rewrite it to a single file component, if not, you should config vue alias to vue/dist/vue.esm-bundler.js
+
+const SubMenu = {
+  name: 'SubMenu',
+  props: {
+    menuInfo: {
+      type: Object,
+      default: () => ({}),
+    },
+  },
+  template: `
+    <a-sub-menu :key="menuInfo.key" v-bind="$attrs">
+      <template #title>
+        <span>
+          <MailOutlined /><span>{{ menuInfo.title }}</span>
+        </span>
+      </template>
+      <template v-for="item in menuInfo.children" :key="item.key">
+        <template v-if="!item.children">
+          <a-menu-item :key="item.key">
+            <PieChartOutlined />
+            <span>{{ item.title }}</span>
+          </a-menu-item>
+        </template>
+        <template v-else>
+          <sub-menu :menu-info="item" :key="item.key" />
+        </template>
+      </template>
+    </a-sub-menu>
+  `,
+  components: {
+    PieChartOutlined,
+    MailOutlined,
+  },
+};
+const list = [
+  {
+    key: '1',
+    title: 'Option 1',
+  },
+  {
+    key: '2',
+    title: 'Navigation 2',
+    children: [
+      {
+        key: '2.1',
+        title: 'Navigation 3',
+        children: [
+          {
+            key: '2.1.1',
+            title: 'Option 2.1.1',
+          },
+        ],
+      },
+    ],
+  },
+];
 export default defineComponent({
   setup() {
-    const panes = ref([
-      {
-        title: 'Tab 1',
-        content: 'Content of Tab 1',
-        key: '1',
-      },
-      {
-        title: 'Tab 2',
-        content: 'Content of Tab 2',
-        key: '2',
-      },
-      {
-        title: 'Tab 3',
-        content: 'Content of Tab 3',
-        key: '3',
-        closable: false,
-      },
-    ]);
-    const activeKey = ref(panes.value[0].key);
-    const newTabIndex = ref(0);
+    const collapsed = ref(false);
 
-    const callback = key => {
-      console.log(key);
-    };
-
-    const add = () => {
-      activeKey.value = `newTab${++newTabIndex.value}`;
-      panes.value.push({
-        title: 'New Tab',
-        content: 'Content of new Tab',
-        key: activeKey.value,
-      });
-    };
-
-    const remove = targetKey => {
-      let lastIndex = 0;
-      panes.value.forEach((pane, i) => {
-        if (pane.key === targetKey) {
-          lastIndex = i - 1;
-        }
-      });
-      panes.value = panes.value.filter(pane => pane.key !== targetKey);
-
-      if (panes.value.length && activeKey.value === targetKey) {
-        if (lastIndex >= 0) {
-          activeKey.value = panes.value[lastIndex].key;
-        } else {
-          activeKey.value = panes.value[0].key;
-        }
-      }
-    };
-
-    const onEdit = (targetKey, action) => {
-      if (action === 'add') {
-        add();
-      } else {
-        remove(targetKey);
-      }
+    const toggleCollapsed = () => {
+      collapsed.value = !collapsed.value;
     };
 
     return {
-      panes,
-      activeKey,
-      callback,
-      onEdit,
+      list,
+      collapsed,
+      toggleCollapsed,
     };
+  },
+
+  components: {
+    'sub-menu': SubMenu,
+    MenuFoldOutlined,
+    MenuUnfoldOutlined,
+    PieChartOutlined,
   },
 });
 </script>

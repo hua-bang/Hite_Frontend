@@ -9,30 +9,25 @@
 </template>
 
 <script>
-import { defineComponent, ref } from 'vue';
+import { useStore } from "vuex";
+import {computed, defineComponent, ref,onMounted} from 'vue';
 export default defineComponent({
   setup() {
-    const panes = ref([
-      {
-        title: '控制台',
-        key: '1',
-      }
-    ]);
-    const activeKey = ref(panes.value[0].key);
+    const store = useStore();
+    const panes = computed(() => store.state.tagsView.visitedViews);
+    const activeKey =  ref(0);
     const newTabIndex = ref(0);
 
     const callback = key => {
       console.log(key);
     };
 
-    const add = () => {
-      activeKey.value = `newTab${++newTabIndex.value}`;
-      panes.value.push({
-        title: 'New Tab',
-        content: 'Content of new Tab',
-        key: activeKey.value,
-      });
-    };
+    onMounted(() => {
+      if(panes.value.length === 0) {
+        console.log("no panes");
+      }
+    })
+
 
     const remove = targetKey => {
       let lastIndex = 0;

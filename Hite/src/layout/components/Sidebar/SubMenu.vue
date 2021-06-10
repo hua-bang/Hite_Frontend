@@ -1,11 +1,20 @@
 <template>
-  <a-sub-menu :title="menuInfo.title" >
+  <a-sub-menu>
+    <template #title>
+        <span>
+          <MenuUnfoldOutlined></MenuUnfoldOutlined>
+          <span>{{menuInfo.meta.title}}</span>
+        </span>
+    </template>
     <template v-for="item in menuInfo.children">
-      <template v-if="!item.children">
-        <a-menu-item :key="item.key" @click="resolvePath(item.path)">{{ item.title }}</a-menu-item>
+      <template v-if="!item.children && !item.meta.hidden">
+        <a-menu-item :key="item.path" @click="resolvePath(item)">
+          <MenuUnfoldOutlined style="font-size: 16px" />
+          <span> {{ item.meta.title }} </span>
+        </a-menu-item>
       </template>
       <template v-else>
-        <SubMenu :menu-info="item"></SubMenu>
+        <SubMenu :menu-info="item" :base-path="basePath + item.path" v-if="!item.meta.hidden"></SubMenu>
       </template>
     </template>
   </a-sub-menu>
@@ -13,6 +22,11 @@
 
 <script>
 import { useRouter } from "vue-router"
+import { useStore } from "vuex";
+import {
+  MenuFoldOutlined,
+  MenuUnfoldOutlined
+} from "@ant-design/icons-vue"
 
 export default {
   name: "SubMenu",
@@ -20,13 +34,31 @@ export default {
     menuInfo: {
       type: Object,
       default: () => ({}),
+    },
+    basePath: {
+      type: String
     }
   },
-  setup() {
+  components: {
+    MenuUnfoldOutlined
+  },
+  setup(prop) {
     const router = useRouter();
+    const state = useStore();
 
-    const resolvePath = (path) => {
-      router.push(path);
+    const resolvePath = (item) => {
+      let { meta, path } = item;
+      const realPath = prop.basePath ? `${prop.basePath}/${path}` : path;
+      addTagsView({
+        path,
+        title: meta.title,
+        key: path
+      })
+      router.push(realPath);
+    }
+
+    const addTagsView = (view) => {
+      state.commit("tagsView/ADD_VISITED_VIEW", view)
     }
 
     return {

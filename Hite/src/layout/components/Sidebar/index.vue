@@ -2,16 +2,16 @@
   <SideBarMask></SideBarMask>
   <div class="ht-sidebar" :class=" status ? 'open' : 'close'">
     <Header :status.sync="status"></Header>
-    <a-menu theme="dark" mode="inline" :default-selected-keys="['1']">
+    <a-menu theme="dark" mode="inline" :inline-collapsed="collapsed" :class=" collapsed ? 'collapsed' : ''">
       <template v-for="item in menuList">
         <template v-if="!item.children">
-          <a-menu-item :key="item.key" @click="resolvePath(item.path)">
+          <a-menu-item :key="item.path" @click="resolvePath(item.path)" v-if="!item.meta.hidden">
             <MenuUnfoldOutlined style="font-size: 16px" />
-            <span :hidden="!status"> {{ item.title }} </span>
+            <span> {{ item.meta.title }} </span>
           </a-menu-item>
         </template>
         <template v-else>
-          <SubMenu :menu-info="item"></SubMenu>
+          <SubMenu :menu-info="item" :base-path="item.path" v-if="!item.meta.hidden"></SubMenu>
         </template>
       </template>
     </a-menu>
@@ -45,18 +45,9 @@ export default {
 
     const router = useRouter();
 
-    const menuList = ref([
-      {
-        key: "1",
-        path: "/Console",
-        title: "控制台"
-      },
-      {
-        key: "2",
-        path: "/Login",
-        title: "登陆页面"
-      }
-    ]);
+    const menuList = computed(() => store.state.permission.routes);
+
+    const collapsed = computed(() => !status.value);
 
     const resolvePath = (path) => {
       router.push(path);
@@ -70,7 +61,8 @@ export default {
       status,
       menuList,
       resolvePath,
-      changeSidebarStatus
+      changeSidebarStatus,
+      collapsed
     }
   }
 }
@@ -84,6 +76,9 @@ export default {
   transition: width 0.3s linear;
   position: relative;
   overflow-x: hidden;
+  ::v-deep .ant-menu-inline-collapsed {
+    width: 50px !important;
+  }
 }
 .open {
   width: $sideBarOpenWidth !important;
@@ -109,6 +104,14 @@ export default {
     width: 100vw;
     height: 100vh;
     background: red;
+  }
+}
+.collapsed  {
+  :deep(.ant-menu-item) {
+    padding: 0 16px !important;
+  }
+  :deep( li > .ant-menu-submenu-title) {
+    padding: 0 16px !important;
   }
 }
 </style>

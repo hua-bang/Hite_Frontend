@@ -24,6 +24,22 @@
                   </template>
                 </a-input-password>
             </a-form-item>
+            <div class="authCodeArea">
+              <div class="authCode-input">
+                <a-form-item required name="authCode" :wrapper-col="{ span: 24}">
+                    <a-input v-model:value="user.authCode" placeholder="input authCode"  size="large">
+                      <template #prefix>
+                        <lock-outlined style="color: #5fb2ff"></lock-outlined>
+                      </template>
+                    </a-input>
+                </a-form-item>
+              </div>
+              <div class="authCode-img">
+                  <img src="http://localhost:8080/code/get">
+              </div>
+            </div>
+            
+
 
             <div class="ht-form-item">
               <div id="hd-remember-password">
@@ -42,6 +58,7 @@
         </div>
       </div>
     </div>
+    
     <div class="footer">
       <Footer></Footer>
     </div>
@@ -58,6 +75,7 @@ import { getRulesByProp } from "../utils/rule/index.js"
 import Footer from "./Footer.vue";
 import { message } from "ant-design-vue"
 import { useRouter } from "vue-router"
+import request from "../network/request.js"
 
 export default {
   name: "Login",
@@ -79,7 +97,8 @@ export default {
 
      const user = reactive({
        name: "",
-       password: ""
+       password: "",
+       authCode: ""
      });
 
      /**
@@ -92,15 +111,22 @@ export default {
      getRules();
 
      const login = () => {
+
        loadingShow.value = true;
-       // todo: login
-       setTimeout(() => {
-         loadingShow.value = false;
-         message.success("登录成功，跳转页面");
+
+       request.post("/api/authorize/login", {
+         username: user.name,
+         password: user.password,
+         authCode: user.authCode
+       }).then(res => {
          setTimeout(() => {
-          router.push("/console")
-         }, 1000)
-       }, 1000)
+            loadingShow.value = false;
+            message.warning("验证码错误");
+          }, 1000)
+       }).catch(err => {
+         message.warning("验证码错误");
+       })
+       
      }
 
      return {
@@ -169,5 +195,16 @@ export default {
 #hd-remember-password {
   width: 50%;
   text-align: left;
+}
+.authCodeArea{
+  width: 100%;
+  display: flex;
+}
+.authCode-input{
+  width: 75%;
+}
+.authCode-img {
+  text-align: center;
+  width: 25%;
 }
 </style>
